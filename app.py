@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, redirect, flash, session
 from models import db, connect_db, User
 from forms import OnlyCsrfForm, RegisterUserForm, LoginForm
 
@@ -12,6 +12,8 @@ app.config['SECRET_KEY'] = 'MYPASSWORRD'
 
 connect_db(app)
 db.create_all()
+
+SESSION_AUTH_KEY = "username"
 
 @app.get('/')
 def get_homepage():
@@ -33,12 +35,13 @@ def show_register_form():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-        new_user = User.register(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+        new_user = User.register(username=username, password=password,
+            email=email, first_name=first_name, last_name=last_name)
 
         db.session.add(new_user)
         db.session.commit()
 
-        session["username"] = new_user.username
+        session[SESSION_AUTH_KEY] = new_user.username
 
         flash(f"Successfully added user: {first_name} {last_name}")
         return redirect(f"/users/{new_user.username}")
@@ -62,7 +65,7 @@ def show_login_form():
 
         if user:
             # on successful login, redirect to secret page
-            session["username"] = user.username
+            session[SESSION_AUTH_KEY] = user.username
             return redirect(f"/users/{user.username}")
 
         else:
@@ -78,7 +81,7 @@ def show_user_page(username):
 
     form=OnlyCsrfForm()
 
-    if session["username"] != username:
+    if session[SESSION_AUTH_KEY] != username:
         flash("You must be logged in to view!")
         return redirect("/login")
 
@@ -96,6 +99,6 @@ def logout():
 
     if form.validate_on_submit():
         # Remove "user_id" if present, but no errors if it wasn't
-        session.pop("username", None)
+        session.pop(SESSION_AUTH_KEY, None)
         flash("Successfully Logged Out!")
     return redirect("/login")

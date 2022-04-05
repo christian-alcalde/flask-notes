@@ -6,7 +6,7 @@ from wtforms.validators import InputRequired, Length
 """Forms for note taking app"""
 
 class RegisterUserForm(FlaskForm):
-    """Form to add a new user"""
+    """ Form to add a new user"""
 
     username = StringField("Username", validators=[InputRequired(), Length(5, 20)])
     password = PasswordField("Password", validators=[InputRequired(), Length(8, 100)])
@@ -16,10 +16,11 @@ class RegisterUserForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    """Form to log user in"""
+    """ Form to log user in"""
 
     username = StringField("Username", validators=[InputRequired(), Length(5, 20)])
     password = PasswordField("Password", validators=[InputRequired(), Length(8, 100)])
 
+
 class OnlyCsrfForm(FlaskForm):
-    """Form for logout """
+    """ Form for CSRF protection only """
