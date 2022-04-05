@@ -1,3 +1,4 @@
+from re import L
 from flask import Flask
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
@@ -24,3 +25,8 @@ class LoginForm(FlaskForm):
 
 class OnlyCsrfForm(FlaskForm):
     """ Form for CSRF protection only """
+
+class AddNoteForm(FlaskForm):
+    """ Add a new note for a user """
+
+    title = StringField("Title", validators=[InputRequired(), Length(5, 20)])

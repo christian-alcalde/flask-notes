@@ -1,16 +1,37 @@
-{%extends 'base.html'%} {%block title%} Secret! {%endblock%} {%block
-  content%}
-
-<h1>{{msg}}</h1>
-
+{%extends 'base.html'%} {%block title%} Secret! {%endblock%} {%block content%}
 {% if 'username' in session %}
-<!-- <li><a href="/logout">Logout</a></li> -->
-<li><a href="/users/{{username}}">Profile Page!</a></li>
+<h1>{{user.first_name}} {{user.last_name}}</h1>
+<p>Email: {{user.email}}</p>
+
+<h2>Notes</h2>
+<ul>
+  {%for note in user.notes%}
+  <li>
+    <a href="/notes/{{user.notes.id}}/update">
+      <i class="fa-solid fa-pen-to-square"></i>
+    </a>
+    <a href="/notes/{{user.notes.id}}/delete">
+      <i class="fa-solid fa-trash-can"></i>
+    </a>
+    <p>
+      {{user.notes.title}} <br />
+      {{user.notes.content}}
+    </p>
+  </li>
+  {%endfor%}
+</ul>
+
+<a href="/users/{{user.username}}/notes/add" class="btn btn-primary">
+  Add Note
+</a>
+
+<form action="/users/{{user.username}}/delete" method="POST">
+  {{form.hidden_tag()}}
+  <button type="submit" class="btn btn-primary">Delete User</button>
+</form>
 
 <form action="/logout" method="POST">
   {{form.hidden_tag()}}
   <button type="submit" class="btn btn-primary">Logout</button>
 </form>
-{% endif %}
-
-  {% endblock %}
+{% endif %} {% endblock %}

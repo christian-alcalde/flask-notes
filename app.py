@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, flash, session
-from models import db, connect_db, User
+from models import db, connect_db, User, Note
 from forms import OnlyCsrfForm, RegisterUserForm, LoginForm
 
 """Note taking app with user authentication using Flask"""
@@ -86,10 +86,11 @@ def show_user_page(username):
         return redirect("/login")
 
     else:
-        msg = "You Made It!"
-        return render_template("user_details.html", msg=msg,
-            username=username, form=form)
+        # msg = "You Made It!"
+        user = User.query.get_or_404(username)
 
+        return render_template("user_details.html", user=user,
+            form=form)
 
 @app.post("/logout")
 def logout():
@@ -102,3 +103,24 @@ def logout():
         session.pop(SESSION_AUTH_KEY, None)
         flash("Successfully Logged Out!")
     return redirect("/login")
+
+@app.post('/users/<username>/delete')
+def delete_user(username):
+    """Deletes all user posts and then the user from the database"""
+
+    form = OnlyCsrfForm()
+
+    #need to validate csrf token
+    if form.validate_on_submit():
+        user = User.query.get_or_404(username)
+        Note.query.filter_by(owner = username).delete()
+
+        db.session.commit()
+
+        db.session.delete(user)
+        db.session.commit()
+
+        session.pop(SESSION_AUTH_KEY, None)
+        flash("User Successfully Deleted!")
+
+    return redirect("/")
