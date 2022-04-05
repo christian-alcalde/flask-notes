@@ -1,0 +1,16 @@
+{%extends 'base.html'%} {%block title%} Secret! {%endblock%} {%block
+  content%}
+
+<h1>{{msg}}</h1>
+
+{% if 'username' in session %}
+<!-- <li><a href="/logout">Logout</a></li> -->
+<li><a href="/users/{{username}}">Profile Page!</a></li>
+
+<form action="/logout" method="POST">
+  {{form.hidden_tag()}}
+  <button type="submit" class="btn btn-primary">Logout</button>
+</form>
+{% endif %}
+
+  {% endblock %}

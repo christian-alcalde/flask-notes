@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, session
 from models import db, connect_db, User
-from forms import RegisterUserForm
+from forms import OnlyCsrfForm, RegisterUserForm, LoginForm
 
 """Note taking app with user authentication using Flask"""
 
@@ -38,31 +38,64 @@ def show_register_form():
         db.session.add(new_user)
         db.session.commit()
 
+        session["username"] = new_user.username
+
         flash(f"Successfully added user: {first_name} {last_name}")
-        return redirect("/register")
+        return redirect(f"/users/{new_user.username}")
 
     else:
-        return render_template("addUser.html", form=form)
+        return render_template("add_user.html", form=form)
+
 
 @app.route('/login', methods = ["GET","POST"])
 def show_login_form():
     """Displays and handles login form"""
 
-    form = RegisterUserForm()
+    form = LoginForm()
 
     if form.validate_on_submit():
 
         username = form.username.data
         password = form.password.data
 
-        new_user = User(username = username,
-                        password = password)
+        user = User.authenticate(username=username, password=password)
 
-        db.session.add(new_user)
-        db.session.commit()
+        if user:
+            # on successful login, redirect to secret page
+            session["username"] = user.username
+            return redirect(f"/users/{user.username}")
 
-        flash(f"Successfully added user: {first_name} {last_name}")
-        return redirect("/secret")
+        else:
+            # re-render the login page with an error
+            form.username.errors = ["Incorrect name/password"]
+
+    return render_template("login.html", form=form)
+
+
+@app.get('/users/<username>')
+def show_user_page(username):
+    """Shows user detail page"""
+
+    form=OnlyCsrfForm()
+
+    if session["username"] != username:
+        flash("You must be logged in to view!")
+        return redirect("/login")
 
     else:
-        return render_template("addUser.html", form=form)
+        msg = "You Made It!"
+        return render_template("user_details.html", msg=msg,
+            username=username, form=form)
+
+
+@app.post("/logout")
+def logout():
+    """Logs user out and redirects to homepage."""
+
+    form = OnlyCsrfForm()
+
+    if form.validate_on_submit():
+        # Remove "user_id" if present, but no errors if it wasn't
+        session.pop("username", None)
+        flash("Successfully Logged Out!")
+    return redirect("/login")
