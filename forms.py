@@ -26,7 +26,16 @@ class LoginForm(FlaskForm):
 class OnlyCsrfForm(FlaskForm):
     """ Form for CSRF protection only """
 
+
 class AddNoteForm(FlaskForm):
     """ Add a new note for a user """
 
-    title = StringField("Title", validators=[InputRequired(), Length(5, 20)])
+    title = StringField("Title", validators=[InputRequired(), Length(1, 100)])
+    content = StringField("Content", validators=[InputRequired()])
+
+
+class EditNoteForm(FlaskForm):
+    """ Edit note """
+
+    title = StringField("Title", validators=[InputRequired(), Length(1, 100)])
+    content = StringField("Content", validators=[InputRequired()])

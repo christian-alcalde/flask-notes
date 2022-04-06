@@ -7,15 +7,19 @@
 <ul>
   {%for note in user.notes%}
   <li>
-    <a href="/notes/{{user.notes.id}}/update">
+    <a href="/notes/{{note.id}}/update">
       <i class="fa-solid fa-pen-to-square"></i>
     </a>
-    <a href="/notes/{{user.notes.id}}/delete">
+    <form action="/notes/{{note.id}}/delete" method="POST">
+      {{form.hidden_tag()}}
+      <button type="submit">
       <i class="fa-solid fa-trash-can"></i>
-    </a>
+      </button>
+    </form>
+
     <p>
-      {{user.notes.title}} <br />
-      {{user.notes.content}}
+      {{note.title}} <br />
+      {{note.content}}
     </p>
   </li>
   {%endfor%}

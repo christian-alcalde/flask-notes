@@ -13,8 +13,6 @@ def connect_db(app):
 class User(db.Model):
     """User information"""
 
-    notes = db.relationship('Note', backref='users')
-
     __tablename__ = 'users'
 
     username = db.Column(db.String(20),
@@ -32,6 +30,9 @@ class User(db.Model):
 
     last_name = db.Column(db.String(30),
                         nullable = False)
+
+    notes = db.relationship('Note', backref='user')
+
 
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
